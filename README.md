@@ -1,0 +1,2 @@
+# gostruct
+golang data struct
