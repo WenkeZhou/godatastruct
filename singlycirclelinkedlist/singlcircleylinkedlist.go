@@ -1,4 +1,6 @@
-package singlylinkedlist
+package singlycirclelinkedlist
+
+import "fmt"
 
 type List struct {
 	first *element
@@ -24,9 +26,11 @@ func (list *List) Add(values ...interface{}) {
 	for _, value := range values {
 		newElement := &element{value: value}
 		if list.size == 0 {
+			newElement.next = list.first
 			list.first = newElement
 			list.last = newElement
 		} else {
+			newElement.next = list.first
 			list.last.next = newElement
 			list.last = newElement
 		}
@@ -45,6 +49,7 @@ func (list *List) Prepend(values ...interface{}) {
 		if list.size == 0 {
 			list.last = newElement
 		}
+		list.last.next = newElement
 		list.size++
 	}
 }
@@ -76,10 +81,12 @@ func (list *List) Remove(index int) {
 
 	if currentElement == list.first {
 		list.first = currentElement.next
+		list.last.next = currentElement.next
 	}
 
 	if currentElement == list.last {
 		list.last = beforeElement
+		list.last.next = list.first
 	}
 
 	if beforeElement != nil {
@@ -94,10 +101,19 @@ func (list *List) IndexOf(value interface{}) int {
 		return -1
 	}
 	e := list.first
-	for i := 0; e != nil; i, e = i+1, e.next {
-		index := i
-		if e.value == value {
-			return index
+	if e.value == value {
+		return 0
+	}
+	i := 1
+	for {
+		e = e.next
+		if e != list.first {
+			if e.value == value {
+				return i
+			}
+			i++
+		} else {
+			break
 		}
 	}
 	return -1
@@ -105,8 +121,23 @@ func (list *List) IndexOf(value interface{}) int {
 
 func (list *List) Values() []interface{} {
 	values := make([]interface{}, list.size, list.size)
-	for i, e := 0, list.first; e != nil; i, e = i+1, e.next {
-		values[i] = e.value
+	if list.size == 0 {
+		return values
+	}
+	e := list.first
+	values[0] = e.value
+	fmt.Println("this:", values)
+	i := 1
+	for {
+		fmt.Println("for this:", values)
+		e = e.next
+		if e != list.first {
+			values[i] = e.value
+			fmt.Println("for this if:", values)
+			i++
+		} else {
+			break
+		}
 	}
 	return values
 }
@@ -133,6 +164,7 @@ func (list *List) Insert(index int, values ...interface{}) {
 			newElement := &element{value: value}
 			if i == 0 {
 				list.first = newElement
+				list.last.next = newElement
 			} else {
 				beforeElement.next = newElement
 			}
